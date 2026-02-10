@@ -28,6 +28,8 @@ export default function useExpenseDetail(expenseId: number) {
       exact: false,
     })
     queryClient.invalidateQueries({ queryKey: ['balance'], exact: false })
+    queryClient.invalidateQueries({ queryKey: ['budgets'], exact: false })
+    queryClient.invalidateQueries({ queryKey: ['budgetDetail'], exact: false })
   }
 
   const {

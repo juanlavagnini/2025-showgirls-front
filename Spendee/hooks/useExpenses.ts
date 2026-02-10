@@ -25,6 +25,7 @@ export default function useExpenses(
     queryClient.invalidateQueries({ queryKey: ['categoriesChart'] })
     queryClient.invalidateQueries({ queryKey: ['categories'] })
     queryClient.invalidateQueries({ queryKey: ['budgets', userId] })
+    queryClient.invalidateQueries({ queryKey: ['budgetDetail'], exact: false })
     queryClient.invalidateQueries({ queryKey: ['streak', userId] })
   }
 

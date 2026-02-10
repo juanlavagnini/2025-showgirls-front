@@ -5,6 +5,7 @@ export interface BudgetCategoryResponse {
   monto: number
   gastado: number
   porcentaje: number
+  alerta?: number
 }
 
 export interface BudgetResponse {

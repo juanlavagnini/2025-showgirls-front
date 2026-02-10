@@ -18,7 +18,6 @@ export default function useBudgetDetail(budgetId: number) {
       return res.data
     },
     enabled: !!budgetId,
-    refetchOnMount: false,
   })
   return {
     budgetDetailData,

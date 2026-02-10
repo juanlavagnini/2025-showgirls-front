@@ -208,7 +208,15 @@ const Budget = () => {
             const categoria = categoriesData.find((c) => c.id === categoriaId)
 
             return (
-              <SectionCard key={index}>
+              <SectionCard
+                key={index}
+                onPress={() =>
+                  router.push({
+                    pathname: '/budget/edit-category-budget',
+                    params: { budgetId: id, categoryId: categoriaId },
+                  })
+                }
+              >
                 <View className="flex-row items-center justify-between w-full flex-1">
                   <View className="flex-row items-center gap-2 flex-1">
                     <IconButton
