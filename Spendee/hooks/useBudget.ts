@@ -8,8 +8,8 @@ export default function useBudgets(usuarioId: string) {
   const queryClient = useQueryClient()
 
   function onMutationSuccess() {
-    queryClient.invalidateQueries({ queryKey: ['budgets', usuarioId] })
-    queryClient.invalidateQueries({ queryKey: ['budgetDetail'], exact: false })
+    queryClient.invalidateQueries({ queryKey: ['budgets'] })
+    queryClient.invalidateQueries({ queryKey: ['budgetDetail'] })
     queryClient.invalidateQueries({ queryKey: ['expenses'], exact: false })
     queryClient.invalidateQueries({
       queryKey: ['expensesByCategory'],
@@ -59,6 +59,22 @@ export default function useBudgets(usuarioId: string) {
       queryClient.invalidateQueries({ queryKey: ['budgetDetail', budgetId] })
     },
   })
+  const { mutateAsync: modifyBudgetCategory } = useMutation({
+    mutationFn: async ({
+      budgetId,
+      categoryId,
+      body,
+    }: {
+      budgetId: number
+      categoryId: number
+      body: { monto?: number; alerta?: boolean; limiteAlerta?: number }
+    }) => {
+      return budgetService.modifyBudgetCategory(budgetId, categoryId, body)
+    },
+    onSuccess: (data, variables) => {
+      onMutationSuccess()
+    },
+  })
   return {
     futureBudgets: budgetsData?.futureBudgets,
     currentBudget: budgetsData?.currentBudget,
@@ -69,6 +85,7 @@ export default function useBudgets(usuarioId: string) {
     addBudget,
     deleteBudget,
     modifyBudget,
+    modifyBudgetCategory,
     ...rest,
   }
 }

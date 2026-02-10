@@ -7,7 +7,7 @@ import useBudgets from '@/hooks/useBudget'
 import useBudgetsDetail from '@/hooks/useBudgetDetail'
 import useCategories from '@/hooks/useCategories'
 import useThemeColor from '@/theme/useThemeColor'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
@@ -18,6 +18,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   View,
+  Switch,
 } from 'react-native'
 import Slider from '@react-native-community/slider'
 
@@ -25,20 +26,33 @@ const EditCategoryBudget = () => {
   const user = auth.currentUser
   const userId = user?.uid
   const router = useRouter()
+  const navigation = useNavigation()
   const { budgetId, categoryId } = useLocalSearchParams()
   const { colorHex } = useThemeColor()
 
-  const { budgetDetailData } = useBudgetsDetail(parseInt(budgetId as string))
-  const { modifyBudget } = useBudgets(userId!)
+  const { budgetDetailData, refetch } = useBudgetsDetail(parseInt(budgetId as string))
+  const { modifyBudgetCategory } = useBudgets(userId!)
   const { categoriesData } = useCategories()
 
   const [amountState, setAmountState] = useState<string>('')
   const [alertPercentage, setAlertPercentage] = useState<number>(80)
+  const [isAlertEnabled, setIsAlertEnabled] = useState<boolean>(true)
   const [isSubmitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   const categoryIdNum = parseInt(categoryId as string)
   const categoryInfo = categoriesData?.find((c) => c.id === categoryIdNum)
+
+  useEffect(() => {
+    navigation.setOptions({
+        headerRight: () => (
+            <Button variant="ghost" onPress={onSubmit} disabled={isSubmitting}>
+                <Text style={{ color: colorHex }} className="font-bold text-lg">Guardar</Text>
+            </Button>
+        ),
+        title: 'Editar Categoría'
+    })
+  }, [navigation, amountState, alertPercentage, isAlertEnabled, isSubmitting, colorHex, budgetDetailData]) // Dependencies for header update
 
   useEffect(() => {
     if (budgetDetailData) {
@@ -47,7 +61,13 @@ const EditCategoryBudget = () => {
       )
       if (categoryBudget) {
         setAmountState(categoryBudget.monto.toString())
-        setAlertPercentage(categoryBudget.alerta || 80)
+        if (categoryBudget.alerta !== undefined && categoryBudget.alerta === true) {
+            setAlertPercentage(categoryBudget.limiteAlerta || 80)
+            setIsAlertEnabled(true)
+        } else {
+            setAlertPercentage(80) 
+            setIsAlertEnabled(false)
+        }
       }
     }
   }, [budgetDetailData, categoryIdNum])
@@ -63,30 +83,19 @@ const EditCategoryBudget = () => {
     try {
       setSubmitting(true)
       
-      const updatedCategories = budgetDetailData.PresupuestoCategoria.map((c) => {
-        if (c.categoriaId === categoryIdNum) {
-          return {
-            ...c,
-            monto: Number(amountState),
-            alerta: alertPercentage,
-          }
-        }
-        return c
-      })
-  
-      await modifyBudget({
-        budgetId: parseInt(budgetId as string),
+      const categoryBudgetId = parseInt(budgetId as string);
+
+      await modifyBudgetCategory({
+        budgetId: categoryBudgetId,
+        categoryId: categoryIdNum,
         body: {
-          usuarioId: userId,
-          fechaInicio: budgetDetailData.fechaInicio,
-          fechaFin: budgetDetailData.fechaFin,
-          monto: budgetDetailData.monto, // Assuming total budget amount is NOT automatically updated by category sum here, or handled by backend? 
-          // Usually if budget is sum of categories, we might need to update total monto too. 
-          // Let's assume we keep the categories array updated.
-          PresupuestoCategoria: updatedCategories,
+          monto: Number(amountState),
+          alerta: isAlertEnabled,
+          limiteAlerta: isAlertEnabled ? alertPercentage : undefined,
         },
       })
-  
+      
+      await refetch() // Ensure we have latest data before going back
       toastService.show('Categoría actualizada', 'success')
       router.back()
     } catch (err) {
@@ -148,43 +157,40 @@ const EditCategoryBudget = () => {
               </View>
 
               <View className="w-full gap-4">
-                <View className="flex-row justify-between">
+                 <View className="flex-row justify-between items-center">
                   <Text className="text-muted-foreground">Alerta de consumo</Text>
-                  <Text className="font-bold text-lg">{alertPercentage.toFixed(0)}%</Text>
+                  <Switch
+                      value={isAlertEnabled}
+                      onValueChange={setIsAlertEnabled}
+                      trackColor={{ false: '#767577', true: colorHex }}
+                      thumbColor={isAlertEnabled ? '#f4f3f4' : '#f4f3f4'}
+                  />
                 </View>
-                <Slider
-                  style={{ width: '100%', height: 40 }}
-                  minimumValue={0}
-                  maximumValue={100}
-                  step={5}
-                  value={alertPercentage}
-                  onValueChange={setAlertPercentage}
-                  minimumTrackTintColor={categoryInfo?.color || colorHex}
-                  maximumTrackTintColor="#FFFFFF"
-                  thumbTintColor={categoryInfo?.color || colorHex}
-                />
-                <Text className="text-muted-foreground text-sm text-center">
-                   Te avisaremos cuando alcances el {alertPercentage}% de tu presupuesto para esta categoría.
-                </Text>
+                {isAlertEnabled && (
+                    <>
+                        <View className="flex-row justify-between">
+                        <Text className="text-muted-foreground">Porcentaje</Text>
+                        <Text className="font-bold text-lg">{alertPercentage.toFixed(0)}%</Text>
+                        </View>
+                        <Slider
+                        style={{ width: '100%', height: 40 }}
+                        minimumValue={0}
+                        maximumValue={100}
+                        step={5}
+                        value={alertPercentage}
+                        onValueChange={setAlertPercentage}
+                        minimumTrackTintColor={categoryInfo?.color || colorHex}
+                        maximumTrackTintColor="#FFFFFF"
+                        thumbTintColor={categoryInfo?.color || colorHex}
+                        />
+                        <Text className="text-muted-foreground text-sm text-center">
+                        Te avisaremos cuando alcances el {alertPercentage}% de tu presupuesto para esta categoría.
+                        </Text>
+                    </>
+                )}
               </View>
 
               {error ? <Text className="text-red-700 text-base">{error}</Text> : null}
-
-              <View className="flex-1" />
-
-              <Button
-                style={{ backgroundColor: colorHex }}
-                className="w-full"
-                onPress={onSubmit}
-              >
-                {isSubmitting ? (
-                  <ActivityIndicator size="small" />
-                ) : (
-                  <Text className="text-white font-semibold">
-                    Guardar Cambios
-                  </Text>
-                )}
-              </Button>
             </CardContent>
           </Card>
         </ScrollView>

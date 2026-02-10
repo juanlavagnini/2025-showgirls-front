@@ -5,7 +5,8 @@ export interface BudgetCategoryResponse {
   monto: number
   gastado: number
   porcentaje: number
-  alerta?: number
+  alerta?: boolean
+  limiteAlerta?: number
 }
 
 export interface BudgetResponse {
@@ -38,6 +39,16 @@ class BudgetService {
   }
   public async modifyBudget(budgetId: number, body: Partial<BudgetResponse>) {
     return await ApiService.put(`/budget/${budgetId}`, body)
+  }
+  public async modifyBudgetCategory(
+    budgetId: number,
+    categoryId: number,
+    body: { monto?: number; alerta?: boolean; limiteAlerta?: number },
+  ) {
+    return await ApiService.put(
+      `/budget/${budgetId}/category/${categoryId}`,
+      body,
+    )
   }
   public async findByBudgetId(budgetId: number) {
     return await ApiService.get<BudgetResponse>(`/budget/${budgetId}`)
