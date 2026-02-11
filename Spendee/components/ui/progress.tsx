@@ -15,12 +15,14 @@ function Progress({
   indicatorClassName,
   color,
   progressiveColors = true,
+  limitVal,
   ...props
 }: ProgressPrimitive.RootProps &
   React.RefAttributes<ProgressPrimitive.RootRef> & {
     indicatorClassName?: string
     color?: string
     progressiveColors?: boolean
+    limitVal?: number
   }) {
   return (
     <ProgressPrimitive.Root
@@ -36,6 +38,12 @@ function Progress({
         color={color}
         progressiveColors={progressiveColors}
       />
+      {limitVal !== undefined && (
+        <View
+          className="absolute top-0 h-full w-[2px] bg-white z-10"
+          style={{ left: `${limitVal}%` }}
+        />
+      )}
     </ProgressPrimitive.Root>
   )
 }

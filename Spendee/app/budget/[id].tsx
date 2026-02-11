@@ -62,6 +62,29 @@ const Budget = () => {
   const porcentajePresupuesto =
     ((montoTotalGastado ?? 0) / (montoPresupuestado ?? 0)) * 100
 
+  // Projection Logic
+  const diasTotales =
+    (new Date(budgetDetailData?.fechaFin!).getTime() -
+      new Date(budgetDetailData?.fechaInicio!).getTime()) /
+    (1000 * 3600 * 24)
+  const diasTranscurridos =
+    (new Date().getTime() -
+      new Date(budgetDetailData?.fechaInicio!).getTime()) /
+    (1000 * 3600 * 24)
+
+  const diasTranscurridosReal =
+    diasTranscurridos < 0 ? 0 : diasTranscurridos > diasTotales ? diasTotales : diasTranscurridos
+  
+  const gastoPromedioDiario = (montoTotalGastado ?? 0) / (diasTranscurridosReal || 1)
+  const proyeccionGasto = gastoPromedioDiario * diasTotales
+
+  // Proyeccion
+  const presupuestoEsperadoAlMomento = (montoPresupuestado! / diasTotales) * diasTranscurridosReal
+  
+  const diferencia = (montoTotalGastado ?? 0) - presupuestoEsperadoAlMomento
+  // diferencia > 0 => Gastando más de lo debido -> Adelantado
+  // diferencia < 0 => Gastando menos de lo debido -> Atrasado
+
   const navigation = useNavigation()
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -172,6 +195,28 @@ const Budget = () => {
             {fechaInicio} - {fechaFin}
           </Text>
         </SectionCard>
+        {isCurrentBudget && (
+          <SectionCard>
+              <View className="flex-row items-center justify-between w-full">
+                  <View>
+                      <Text className="text-muted-foreground">Proyección</Text>
+                      <Text className="text-2xl font-semibold">${proyeccionGasto.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</Text>
+                  </View>
+                  <View className="items-end">
+                     {diferencia > 0 ? (
+                        <Text className="text-red-500 font-bold">Adelantado (+${diferencia.toLocaleString('es-AR', { maximumFractionDigits: 0 })})</Text>
+                     ) : (
+                        <Text className="text-green-500 font-bold">Atrasado ({diferencia.toLocaleString('es-AR', { maximumFractionDigits: 0 })})</Text>
+                     )}
+                     <Text className="text-muted-foreground text-xs text-right max-w-[200px]">
+                         {diferencia > 0 
+                            ? "Estás gastando más rápido de lo planeado." 
+                            : "Estás gastando a un buen ritmo."}
+                     </Text>
+                  </View>
+              </View>
+          </SectionCard>
+        )}
       </Section>
       <Section>
         <SectionCard>
@@ -205,6 +250,8 @@ const Budget = () => {
             const montoCategoriaPresupuestado = presupuestoCategoria.monto
             const montoCategoriaGastado = presupuestoCategoria.gastado
             const porcentaje = presupuestoCategoria.porcentaje
+            const alerta = presupuestoCategoria.alerta
+            const limiteAlerta = presupuestoCategoria.limiteAlerta
             const categoria = categoriesData.find((c) => c.id === categoriaId)
 
             return (
@@ -241,9 +288,14 @@ const Budget = () => {
                   </View>
                 </View>
                 <View className="w-full gap-2">
-                  <View className="flex-row justify-between">
+                  <View className="flex-row justify-between items-center">
                     <Text className="font-semibold">
                       ${montoCategoriaGastado?.toLocaleString('es-AR')}
+                    </Text>
+                    <Text
+                      className={`${porcentaje >= 100 ? 'text-red-800' : porcentaje >= 75 && porcentaje < 100 ? 'text-orange-300' : ''} font-bold`}
+                    >
+                      {porcentaje.toFixed(0)}%
                     </Text>
                     <Text className="font-semibold">
                       $
@@ -252,7 +304,11 @@ const Budget = () => {
                       ).toLocaleString('es-AR')}
                     </Text>
                   </View>
-                  <Progress value={porcentaje} color={categoria?.color} />
+                  <Progress
+                    value={porcentaje}
+                    color={categoria?.color}
+                    limitVal={alerta ? limiteAlerta : undefined}
+                  />
                 </View>
               </SectionCard>
             )
