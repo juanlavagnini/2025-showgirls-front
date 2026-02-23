@@ -11,7 +11,7 @@ export default function useStreak(userId: string) {
   } = useQuery({
     queryKey: ['streak', userId],
     queryFn: async () => {
-      const res = await streakService.findByUserId(userId)
+      const res = await streakService.findByUserId()
       return res.data
     },
 

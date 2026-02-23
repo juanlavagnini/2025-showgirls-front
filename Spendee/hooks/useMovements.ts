@@ -14,8 +14,7 @@ export default function useMovements(
 ) {
   const { data, ...rest } = useQuery<MovementsResponse[]>({
     queryKey: ['movements', userId, filters],
-    queryFn: async () =>
-      (await balanceService.findMovements(userId, filters)).data,
+    queryFn: async () => (await balanceService.findMovements(filters)).data,
   })
   return { movementsData: data, ...rest }
 }

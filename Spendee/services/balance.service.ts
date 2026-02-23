@@ -25,13 +25,13 @@ export interface MovementsResponse {
 }
 
 class BalanceService {
-  public async findByUserId(userId: string) {
-    return await ApiService.get<BalanceResponse>(`/balance/${userId}`)
+  public async findByUserId() {
+    return await ApiService.get<BalanceResponse>('/balance')
   }
 
-  public async findMovements(userId: string, filters: MovementsFilters) {
+  public async findMovements(filters: MovementsFilters) {
     return await ApiService.get<MovementsResponse[]>('/balance/agrupado', {
-      params: { userId, ...filters },
+      params: { ...filters },
     })
   }
 }
