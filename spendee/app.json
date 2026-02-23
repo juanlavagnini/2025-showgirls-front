@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.trinisuarez.spendee"
+      "bundleIdentifier": "com.juanlavagnini.spendee"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.trinisuarez.spendee"
+      "package": "com.juanlavagnini.spendee"
     },
     "web": {
       "bundler": "metro",
@@ -44,7 +44,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "d766c57b-1bca-4611-854b-d5c8a592afe9"
+        "projectId": "8f18e07f-14c4-490c-b672-cbcfa76a089c"
       }
     }
   }
