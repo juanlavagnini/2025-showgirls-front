@@ -1,3 +1,4 @@
+import { formatDateUTC } from '@/lib/utils'
 import Container from '@/components/Container'
 import Dropdown from '@/components/Dropdown'
 import IconButton from '@/components/IconButton'
@@ -43,17 +44,15 @@ const Budget = () => {
   const montoRestante = (
     (montoPresupuestado ?? 0) - (montoTotalGastado ?? 0)
   ).toLocaleString('es-AR')
-  const fechaInicio = new Date(
+  const fechaInicio = formatDateUTC(
     budgetDetailData?.fechaInicio!,
-  ).toLocaleDateString(
-    'es-ES',
     new Date(budgetDetailData?.fechaInicio!).getFullYear() ===
       new Date().getFullYear()
       ? { day: 'numeric', month: 'long' }
       : {},
   )
-  const fechaFin = new Date(budgetDetailData?.fechaFin!).toLocaleDateString(
-    'es-ES',
+  const fechaFin = formatDateUTC(
+    budgetDetailData?.fechaFin!,
     new Date(budgetDetailData?.fechaInicio!).getFullYear() ===
       new Date().getFullYear()
       ? { day: 'numeric', month: 'long' }

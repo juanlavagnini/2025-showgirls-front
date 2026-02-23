@@ -31,7 +31,7 @@ class BudgetService {
   }
   public async getBudget(userId: string) {
     return await ApiService.get<BudgetGroupResponse>(
-      `/budget?usuarioId=${userId}`,
+      '/budget',
     )
   }
   public async deleteBudget(budgetId: number) {

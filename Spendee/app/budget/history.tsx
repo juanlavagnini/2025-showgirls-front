@@ -1,3 +1,4 @@
+import { formatDateUTC } from '@/lib/utils'
 import BudgetCard from '@/components/BudgetCard'
 import Container from '@/components/Container'
 import Section from '@/components/Section'
@@ -24,7 +25,7 @@ export default function BudgetHistory() {
 
   const stackedBars =
     pastBudgets?.map((budget) => {
-      const fecha = new Date(budget.fechaInicio).toLocaleDateString('es-AR', {
+      const fecha = formatDateUTC(budget.fechaInicio, {
         day: 'numeric',
         month: 'numeric',
       })

@@ -1,3 +1,4 @@
+import { formatDateUTC } from '@/lib/utils'
 import { BudgetResponse } from '@/services/budget.service'
 import { router } from 'expo-router'
 import React from 'react'
@@ -28,14 +29,14 @@ export default function BudgetCard({
   const montoRestante = (
     (montoPresupuestado ?? 0) - (montoTotalGastado ?? 0)
   ).toLocaleString('es-AR')
-  const fechaInicio = new Date(budget?.fechaInicio!).toLocaleDateString(
-    'es-ES',
+  const fechaInicio = formatDateUTC(
+    budget?.fechaInicio!,
     new Date(budget?.fechaInicio!).getFullYear() === new Date().getFullYear()
       ? { day: 'numeric', month: 'short' }
       : {},
   )
-  const fechaFin = new Date(budget?.fechaFin!).toLocaleDateString(
-    'es-ES',
+  const fechaFin = formatDateUTC(
+    budget?.fechaFin!,
     new Date(budget?.fechaInicio!).getFullYear() === new Date().getFullYear()
       ? { day: 'numeric', month: 'short' }
       : {},
