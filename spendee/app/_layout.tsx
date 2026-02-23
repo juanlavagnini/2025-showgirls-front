@@ -71,6 +71,15 @@ function RootNavigator() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
       <Stack.Screen
+        name="alerts/index"
+        options={{
+          headerTitle: 'Alertas',
+          headerBackVisible: false,
+          presentation: 'modal',
+        }}
+      />
+
+      <Stack.Screen
         name="developer-tools/index"
         options={{
           title: 'Herramientas de Desarrollador',

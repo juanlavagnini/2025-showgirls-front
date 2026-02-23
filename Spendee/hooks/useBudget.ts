@@ -21,6 +21,7 @@ export default function useBudgets(usuarioId: string) {
     })
     queryClient.invalidateQueries({ queryKey: ['balance'], exact: false })
     queryClient.invalidateQueries({ queryKey: ['streak'], exact: false })
+    queryClient.invalidateQueries({ queryKey: ['alerts'], exact: false })
   }
 
   const {
@@ -73,6 +74,8 @@ export default function useBudgets(usuarioId: string) {
     },
     onSuccess: (data, variables) => {
       onMutationSuccess()
+      const { budgetId } = variables
+      queryClient.invalidateQueries({ queryKey: ['budgetDetail', budgetId] })
     },
   })
   return {

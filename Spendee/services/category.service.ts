@@ -56,6 +56,27 @@ class CategoryService {
     // Endpoint sin prefijo /categories según uso actual en la pantalla de edición
     return await ApiService.put(`/categories/modify/${categoryId}`, body)
   }
+
+  public async getAlerts(triggered?: boolean) {
+    const params: Record<string, boolean> = {}
+    if (triggered !== undefined) params.triggered = triggered
+
+    const response = await ApiService.get<
+      {
+        categoria: CategoryResponse
+        limiteAlerta: number
+        gastadoAct: number
+        montoPresupuestado: number
+        alertaVista: boolean
+      }[]
+    >('/categories/alerts', { params })
+
+    return response.data
+  }
+
+  public async markAlertsAsSeen() {
+    return await ApiService.put('/categories/alerts/seen', {})
+  }
 }
 
 const categoryService = new CategoryService()

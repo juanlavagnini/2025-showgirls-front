@@ -293,7 +293,16 @@ const Budget = () => {
                       ${montoCategoriaGastado?.toLocaleString('es-AR')}
                     </Text>
                     <Text
-                      className={`${porcentaje >= 100 ? 'text-red-800' : porcentaje >= 75 && porcentaje < 100 ? 'text-orange-300' : ''} font-bold`}
+                      className={`${
+                        porcentaje >= 100
+                          ? 'text-red-800'
+                          : alerta &&
+                              limiteAlerta &&
+                              porcentaje >= limiteAlerta &&
+                              porcentaje < 100
+                            ? 'text-orange-300'
+                            : ''
+                      } font-bold`}
                     >
                       {porcentaje.toFixed(0)}%
                     </Text>
